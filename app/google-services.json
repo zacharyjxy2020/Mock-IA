@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "860000558775",
+    "firebase_url": "https://hktour-f25bd.firebaseio.com",
+    "project_id": "hktour-f25bd",
+    "storage_bucket": "hktour-f25bd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:860000558775:android:be7b21d8228f9f96",
+        "android_client_info": {
+          "package_name": "com.example.zachary.hktour"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "860000558775-ujarrjif52n7ahn58rfag23ovp2uq26v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9h7LPw0klM4PeZxP9DIM4-lB3tHMNORQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
