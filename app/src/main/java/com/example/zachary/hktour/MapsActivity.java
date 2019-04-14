@@ -6,10 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -29,15 +25,22 @@ import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private static final String TAG = "MapsActivity";
-    public static final int REQUEST_CODE = 1001;
-    public static final String COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
-    public static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
-    public static final int DEFAULT_ZOOM = 15;
+    private static final int REQUEST_CODE = 1001;
+    private static final String COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+    private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
+    private static final int DEFAULT_ZOOM = 15;
+
+
+
     private GoogleMap mMap;
     private ArrayList<Landmark> Alllandmarks;
     private ArrayList<Landmark> landmarks;
@@ -53,7 +56,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private int endHour;
     private int endMinutes;
 
-    //widget
+    LatLng currLocation;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,15 +66,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         checkPermissions();
 
+
         Intent intent = getIntent();
         startHour = intent.getIntExtra("1" , 0);
         startMinutes = intent.getIntExtra("2",0);
         endHour = intent.getIntExtra("3",0);
         endMinutes = intent.getIntExtra("4",0);
+        currLocation = new LatLng(intent.getDoubleExtra("Lat", 0), intent.getDoubleExtra("Lon",0));
+
+
+        Log.d(TAG, "onCreate: checking values" + startHour);
 
         evaluate = new Evaluate(startHour, startMinutes, endMinutes, endHour);
+        evaluate.setCurrentLocation(currLocation);
+        Log.d(TAG, "onCreate: checking values 2 " + endHour);
         evaluate.getRemainingTime();
-
 
         landmarks = new ArrayList<>();
         Alllandmarks = new ArrayList<>();
@@ -98,7 +109,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         finishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Intent intent = new Intent(getApplicationContext(), FinalActivity.class);
                 DialogInterface.OnClickListener dialogListener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -107,8 +117,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 break;
                             }
                             case DialogInterface.BUTTON_POSITIVE:{
-                                intent.putExtra("Data", evaluate.makeItinerary());
-                                startActivity(intent);
+                                if(landmarks.isEmpty()||landmarks.size()<2){
+                                    Toast.makeText(MapsActivity.this, "Please choose at least 2 landmarks",Toast.LENGTH_SHORT).show();
+                                    break;
+                                }else {
+                                    Log.d(TAG, "onClick: transferring data to final activity.");
+                                    Intent intent = new Intent(getApplicationContext(), FinalActivity.class);
+                                    evaluate.setLandmarks(landmarks);
+                                    intent.putExtra("Data", evaluate.makeItinerary());
+                                    startActivity(intent);
+                                }
                             }
                         }
                     }
@@ -170,7 +188,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         if(task.isSuccessful()){
                             Log.d(TAG, "onComplete: found location");
                             Location currentLocation = (Location) task.getResult();
-                            moveCamera(DEFAULT_ZOOM, new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()));
+                            moveCamera(DEFAULT_ZOOM, new LatLng(currentLocation.getLatitude(),
+                                    currentLocation.getLongitude()));
                         }else{
                             Log.d(TAG, "onComplete: can't find location");
                         }
@@ -190,16 +209,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 "Famous residential area and tourist hotspot", "Victoria Peak");
         Landmark oceanPark = new Landmark(22.2467, 114.1757, "Ocean Park",
                 "Theme park in Hong Kong with a variety of rides", "Aberdeen");
+        Landmark disneyLand = new Landmark(22.3130,114.0413, "Disneyland", "Disney Themed Park in Hong Kong",
+                "Lantau Island");
+        Landmark lkf = new Landmark(22.2808,114.1557, "Lan Kwai Fong", "A popular expatriate haunt in Hong Kong for drinking, clubbing and dining.",
+                "Central");
+        Landmark victoriaHarbour = new Landmark(22.2795,114.1648,"Victoria Harbour", "Bustling harbor area with waterfront scenery & popular nighttime light & fireworks displays.",
+                "18 Harcourt Rd, Admiralty");
+        Landmark stanleyMarket = new Landmark(22.2182,114.2124, "Stanley Market", "Stanley Market is a street market in Stanley on Hong Kong Island, Hong Kong.",
+                " Stanley Municipal Services Building, 6號 Stanley Market Rd, Stanley");
         Log.d(TAG, "createLandmarks: making markers for each landmark");
         makeMarker(timesSquare);
         makeMarker(oceanPark);
         makeMarker(hysanPlace);
         makeMarker(peak);
+        makeMarker(disneyLand);
+        makeMarker(lkf);
+        makeMarker(victoriaHarbour);
+        makeMarker(stanleyMarket);
 
         Alllandmarks.add(timesSquare);
         Alllandmarks.add(oceanPark);
         Alllandmarks.add(hysanPlace);
         Alllandmarks.add(peak);
+        Alllandmarks.add(disneyLand);
+        Alllandmarks.add(lkf);
+        Alllandmarks.add(victoriaHarbour);
+        Alllandmarks.add(stanleyMarket);
     }
 
     private void makeMarker(final Landmark landmark) {

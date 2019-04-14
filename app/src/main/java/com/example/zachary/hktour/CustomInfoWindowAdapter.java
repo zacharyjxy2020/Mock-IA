@@ -3,6 +3,7 @@ package com.example.zachary.hktour;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -13,9 +14,10 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
     private final View mWindow;
     private Context mContext;
 
+
     public CustomInfoWindowAdapter(Context context){
         mContext = context;
-        mWindow = LayoutInflater.from(context).inflate(R.layout.custom_info_window_button,null);
+        mWindow = LayoutInflater.from(mContext).inflate(R.layout.custom_info_window_button, (ViewGroup)null);
     }
 
     private void renderWindowText(Marker marker, View view){
